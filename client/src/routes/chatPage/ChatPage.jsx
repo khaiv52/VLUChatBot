@@ -31,6 +31,14 @@ function ChatPage() {
     <div className="chatPage">
       <div className="wrapper" ref={chatRef}>
         <div className="chat">
+          <div className="message user">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum rem perspiciatis ea! Dolorem consequatur blanditiis, natus aliquam aliquid explicabo earum quasi assumenda ea sunt harum saepe iure vero omnis sed!</div>
+          <div className="message ">message from bot</div>
+          <div className="message user">message from user</div>
+          <div className="message ">message from bot</div>
+          <div className="message user">message from user</div>
+          <div className="message ">message from bot</div>
+          <div className="message user">message from user</div>
+          <div className="message "></div>
           <NewPrompt endRef={endRef} />
         </div>
 

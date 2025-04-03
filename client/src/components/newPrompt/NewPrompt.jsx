@@ -27,7 +27,7 @@ function NewPrompt({ endRef }) {
     if (endRef?.current) {
       endRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, img.dbData]);
+  }, [messages, img.dbData, endRef]);
 
   useEffect(() => {
     const clientInstance = getClient({ clientId });
@@ -70,12 +70,13 @@ function NewPrompt({ endRef }) {
           { payload: { block: { text: inputMessage } }, authorId: "user" },
         ]);
         setInputMessage("");
-      } else if (typeof message === "object") {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { payload: { block: { file: message.file } }, authorId: "user" },
-        ]);
       }
+      // else if (typeof message === "object") {
+      //   setMessages((prevMessages) => [
+      //     ...prevMessages,
+      //     { payload: { block: { file: message.file } }, authorId: "user" },
+      //   ]);
+      // }
     } catch (error) {
       console.error("Error sending message: ", error);
     }
@@ -173,6 +174,7 @@ function NewPrompt({ endRef }) {
             <div className="button_container">
               <Upload
                 setImg={setImg}
+                setMessages={setMessages}
                 isConnected={isConnected}
                 client={client}
               />

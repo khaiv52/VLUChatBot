@@ -23,7 +23,7 @@ const authenticator = async () => {
   }
 };
 
-function Upload({ setImg, isConnected, client }) {
+function Upload({ setImg, isConnected, client, setMessages }) {
   const ikUploadRef = useRef(null);
   const onError = (err) => {
     console.log("Error", err);
@@ -33,7 +33,13 @@ function Upload({ setImg, isConnected, client }) {
     console.log("Success", res);
     setImg((prev) => ({ ...prev, isLoading: false, dbData: res }));
 
-    console.log(res.url);
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        payload: { block: { image_url: res.filePath } },
+        authorId: "user",
+      },
+    ]);
   };
 
   const onUploadProgress = (progress) => {
@@ -46,7 +52,12 @@ function Upload({ setImg, isConnected, client }) {
     if (file) {
       try {
         const response = await client.sendFile(file);
-        console.log("File sent successfully:", response);
+
+        if (response && response.fileUrl) {
+          console.log("File sent successfully:", response);
+        } else {
+          console.error("No URL received from response: ", response);
+        }
       } catch (error) {
         console.error("Error sending file:", error);
       }
