@@ -15,10 +15,31 @@ header {
     gap: 8px;
     font: bold;
     align-items: center;
-    
+
     img {
       width: 50px;
       height: 50px;
+    }
+  }
+}
+
+.user {
+  .signInButton {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #000; /* Màu chữ */
+    background-color: #fff; /* Màu nền */
+    border: 2px solid #000; /* Viền */
+    border-radius: 12px; /* Bo góc */
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease; 
+
+    &:hover {
+      background-color: #d0d0d0;
+      color: #0c0c16;
     }
   }
 }

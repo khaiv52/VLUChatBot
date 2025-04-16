@@ -4,19 +4,29 @@ import { TypeAnimation } from "react-type-animation";
 import "./homepage.css";
 
 function HomePage() {
+  // Test Backend API
+  // const test = async () => {
+  //   await fetch("http://localhost:3000/api/test", {
+  //     credentials: "include",
+  //   });
+  // };
+
   return (
     <div className="homepage">
       <img src="/orbital.png" alt="" className="orbital"></img>
       <div className="left">
-        <h1>VLU CHATBOT!</h1>
+        <h1>VLUITGenie</h1>
         <h2>
           Trợ lý AI tư vấn tuyển sinh - Thông minh, Chính xác, Cá nhân hóa
         </h2>
         <h3>
-          Chatbot AI tư vấn tuyển sinh thông minh, cá nhân hóa, giúp thí sinh
-          tìm kiếm thông tin ngành học, trường đại học nhanh chóng và chính xác.
+          VLUITGenie là Trợ lý AI tư vấn tuyển sinh của Trường Đại học Văn Lang,
+          hỗ trợ thí sinh và phụ huynh tra cứu thông tin ngành học, điểm chuẩn,
+          học bổng, học phí và cơ hội nghề nghiệp một cách nhanh chóng và chính
+          xác.
         </h3>
-        <Link to="/dashboard">Get Started</Link>
+        <Link to="/dashboard">Bắt đầu chat</Link>
+        {/* <button onClick={test}>BACKEND TEST</button> */}
       </div>
       <div className="right">
         <div className="imgContainer">
@@ -52,7 +62,7 @@ function HomePage() {
         </div>
       </div>
       <div className="footer">
-        <p>@ 2025 | VLU ChatBot Team</p>
+        <p>@ 2025 | VLUITGenie Team</p>
       </div>
     </div>
   );

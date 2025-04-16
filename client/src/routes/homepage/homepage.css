@@ -25,9 +25,10 @@
     font-size: 30px;
   }
   h3 {
-    font-size: 18px;
+    font-size: 17px;
     max-width: 75%;
     font-weight: 500;
+    margin-top: 20px;
   }
   a {
     padding: 15px 25px;
@@ -36,6 +37,7 @@
     border-radius: 20px;
     font-size: 14px;
     margin-top: 20px;
+    font-weight: bold;
 
     &:hover {
       background-color: white;

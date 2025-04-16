@@ -12,9 +12,11 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@clerk/express": "^1.4.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "imagekit": "^6.0.0",
+    "mongoose": "^8.13.2",
     "nodemon": "^3.1.9"
   }
 }

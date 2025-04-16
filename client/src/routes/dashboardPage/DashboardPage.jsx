@@ -1,13 +1,45 @@
 import React from "react";
 import "./dashboardPage.css";
-
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 function DashboardPage() {
+  const queryClient = useQueryClient();
+
+  const navigate = useNavigate();
+  const mutation = useMutation({
+    mutationFn: (text) => {
+      return fetch(`${import.meta.env.VITE_API_URL}/api/chats`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      }).then((res) => res.json());
+    },
+    // server response trả về id của chat mới tạo
+    onSuccess: (id) => {
+      console.log(id);
+      
+      queryClient.invalidateQueries({ queryKey: ["userChats"] });
+      navigate(`/dashboard/chats/${id}`);
+    },
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const text = e.target.text.value;
+    if (!text) return;
+
+    mutation.mutate(text); // Gọi hàm mutate với text
+  };
+  
   return (
     <div className="dashboardPage">
       <div className="texts">
         <div className="logo">
           <img src="/logoVLU.png" alt=""></img>
-          <h1>VLU CHAT BOT</h1>
+          <h1>VLUITGenie</h1>
         </div>
         <div className="options">
           <div className="option">
@@ -21,8 +53,8 @@ function DashboardPage() {
         </div>
       </div>
       <div className="formContainer">
-        <form>
-          <input type="text" placeholder="Ask anything..."></input>
+        <form onSubmit={handleSubmit}>
+          <input name="text" type="text" placeholder="Hỏi bất kỳ điều gì..."></input>
           <button>
             <img src="/arrow.png" alt=""></img>
           </button>

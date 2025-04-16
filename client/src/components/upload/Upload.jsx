@@ -23,7 +23,13 @@ const authenticator = async () => {
   }
 };
 
-function Upload({ setImg, isConnected, client, setMessages }) {
+function Upload({
+  setImg,
+  isConnected,
+  client,
+  setMessages,
+  setShouldSendToServer,
+}) {
   const ikUploadRef = useRef(null);
   const onError = (err) => {
     console.log("Error", err);
@@ -36,10 +42,13 @@ function Upload({ setImg, isConnected, client, setMessages }) {
     setMessages((prevMessages) => [
       ...prevMessages,
       {
-        payload: { block: { image_url: res.filePath } },
+        payload: { block: { fileData: res.filePath } },
         authorId: "user",
       },
     ]);
+
+    // Trigger mutation sau khi upload ảnh thành công
+    setShouldSendToServer(true);
   };
 
   const onUploadProgress = (progress) => {
