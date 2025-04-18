@@ -6,7 +6,7 @@ import { getClient } from "@botpress/webchat";
 import Markdown from "react-markdown";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-function NewPrompt({ endRef, data }) {
+function NewPrompt({ endRef, data, setIsTyping }) {
   // Xử lý nhập / gửi chat
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -33,10 +33,10 @@ function NewPrompt({ endRef, data }) {
 
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    console.log(messages);
-    console.log(img);
-  }, [messages]);
+  // useEffect(() => {
+  //   console.log(messages);
+  //   console.log(img);
+  // }, [messages]);
 
   const mutation = useMutation({
     mutationFn: ({ inputMessage, botResponse, image }) => {
@@ -76,9 +76,11 @@ function NewPrompt({ endRef, data }) {
       queryClient
         .invalidateQueries({ queryKey: ["chat", data._id] })
         .then(() => {
-          setInputMessage(""); // Reset input message
+          setInputMessage(""); // Reset dữ liệu người dùng nhập (Input Form)
+          setLatestUserMessage(""); // Reset lời nhắn của người dùng - 
+          // tránh trường hợp bị lỗi khi gửi ảnh mà vẫn còn input message đã gửi là text trước đó
           setMessages([]); // Reset messages
-          // setImg({ isLoading: false, error: "", dbData: {}, aiData: {} }); // Reset ảnh
+          setImg({ isLoading: false, error: "", dbData: {}, aiData: {} }); // Reset ảnh
         });
     },
     onError: (error) => {
@@ -92,16 +94,6 @@ function NewPrompt({ endRef, data }) {
     clientInstance.on("message", (message) => {
       console.log("received message: ", message);
       setMessages((prevMessages) => [...prevMessages, message]);
-
-      // Kiểm tra nếu đây là câu trả lời từ bot và thực hiện gửi dữ liệu lên server
-      const botText = message.payload?.block?.text;
-      if (botText && latestUserMessage) {
-        mutation.mutate({
-          inputMessage: latestUserMessage, // Câu hỏi của người dùng
-          botResponse: botText, // Câu trả lời của bot
-          image: img, // Nếu có ảnh
-        });
-      }
     });
 
     const connectClient = async () => {
@@ -117,8 +109,8 @@ function NewPrompt({ endRef, data }) {
     connectClient();
   }, []);
 
-  const sendMessage = async (message) => {
-    if (!inputMessage.trim()) return;
+  const sendMessage = async (message, isInitialMessage) => {
+    if (!message.trim()) return;
 
     if (!client || !isConnected) {
       console.error("Client is not connected. Cannot send message.");
@@ -126,14 +118,20 @@ function NewPrompt({ endRef, data }) {
     }
 
     try {
+      console.log("Sending message:", message); // Log tin nhắn trước khi gửi
       if (typeof message === "string") {
         await client.sendMessage({ type: "text", text: message });
         setMessages((prevMessages) => [
           ...prevMessages,
           { payload: { block: { text: message } }, authorId: "user" },
         ]);
-        setLatestUserMessage(message); // lưu message lại để gửi lên server sau
+
         setShouldSendToServer(true); // flag để kích hoạt mutation trong useEffect
+
+        // Nếu là message đầu, bỏ qua và không lưu câu hỏi của user, ngược lại thì lưu message để mutation
+        if (!isInitialMessage) {
+          setLatestUserMessage(message); // lưu message lại để gửi lên server sau
+        }
       }
     } catch (error) {
       console.error("Error sending message: ", error);
@@ -179,7 +177,7 @@ function NewPrompt({ endRef, data }) {
         lastBotMsg?.payload?.blocks?.[0]?.block?.text ||
         "";
 
-      console.log(img);
+      // console.log(img);
 
       mutation.mutate({
         inputMessage: latestUserMessage,
@@ -194,6 +192,7 @@ function NewPrompt({ endRef, data }) {
     e.preventDefault(); // Ngăn reload trang
 
     sendMessage(inputMessage, false);
+    setIsTyping(true);
     const textarea = e.target;
 
     if (textarea) {
@@ -215,6 +214,7 @@ function NewPrompt({ endRef, data }) {
         event.preventDefault(); // Chặn hành vi xuống dòng mặc định
 
         sendMessage(inputMessage, false);
+        setIsTyping(true);
         textarea.style.height = "auto"; // reset chiều cao
       }
     }
@@ -235,15 +235,26 @@ function NewPrompt({ endRef, data }) {
   const [hasSentInitialMessage, setHasSentInitialMessage] = useState(false);
 
   useEffect(() => {
+    // Log dữ liệu data để kiểm tra xem nó đã có giá trị hợp lệ chưa
+    console.log("data:", data);
+
+    // Kiểm tra nếu chưa gửi tin nhắn ban đầu và dữ liệu đã sẵn sàng
     if (
       !hasSentInitialMessage &&
       isConnected &&
       client &&
-      data?.history?.length === 1 &&
+      data?.history?.length > 0 &&
       data.history[0].parts?.[0]?.text
     ) {
+      const inputMessage = data.history[0].parts[0].text;
+      const isInitialMessage = data?.history?.length == 1;
+      console.log("Sending initial message:", inputMessage);
 
-      sendMessage(data.history[0].parts[0].text);
+      // Gửi tin nhắn đầu tiên
+      sendMessage(inputMessage, isInitialMessage);
+      setIsTyping(true);
+
+      // Đánh dấu đã gửi tin nhắn ban đầu
       setHasSentInitialMessage(true);
     }
   }, [isConnected, client, data?.history, hasSentInitialMessage]);

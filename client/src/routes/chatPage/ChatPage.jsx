@@ -11,6 +11,9 @@ function ChatPage() {
   const path = useLocation().pathname;
   const chatId = path.split("/").pop(); // Lấy id từ đường dẫn
 
+  // Tạo trạng thái gõ của chatbot
+  const [isTyping, setIsTyping] = useState(false);
+
   const { isPending, error, data } = useQuery({
     queryKey: ["chat", chatId],
     queryFn: () =>
@@ -54,6 +57,14 @@ function ChatPage() {
     return () => chatDiv?.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Lắng nghe phản hồi của bot để tắt isTyping
+  useEffect(() => {
+    const lastMessage = data?.history?.[data.history.length - 1];
+    if (lastMessage?.role === "model") {
+      setIsTyping(false);
+    }
+  }, [data]);
+
   return (
     <div className="chatPage">
       <div className="wrapper" ref={chatRef}>
@@ -63,7 +74,7 @@ function ChatPage() {
             : error
             ? "Có lỗi xảy ra"
             : data?.history?.map((message, i) => (
-                <>
+                <React.Fragment key={i}>
                   {message?.img && (
                     <IKImage
                       urlEndpoint={import.meta.env.VITE_IMAGE_KIT_ENDPOINT}
@@ -83,11 +94,21 @@ function ChatPage() {
                   >
                     <Markdown>{message.parts[0]?.text}</Markdown>
                   </div>
-                </>
+                </React.Fragment>
               ))}
+
+          {/* Khi bot đang gõ - hiển thị typing indicator */}
+          {isTyping && (
+            <div className="message">
+              <i>Bot đang gõ...</i>
+            </div>
+          )}
+
           {/* Nội dung cũ load từ database - (Phương thức GET và hiển thị ở trên) 
               - nội dung tương tác mới được chèn bổ sung trong NewPrompt */}
-          {data && <NewPrompt endRef={endRef} data={data} />}
+          {data && (
+            <NewPrompt endRef={endRef} data={data} setIsTyping={setIsTyping} />
+          )}
         </div>
 
         {showScrollButton && (
